@@ -1,9 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ChevronUp, ArchiveRestore } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import dayjs from 'dayjs';
 import SubscriptionItem from './SubscriptionItem';
-// Імпортуємо нові UI-компоненти
 import {
   Select,
   SelectContent,
@@ -50,7 +49,7 @@ const SubscriptionList = ({
         <h2 className="text-lg font-bold">{t.active} ({activeSubs.length})</h2>
         
         <div className="flex gap-2 w-full sm:w-auto">
-          {/* Фільтр Сортування */}
+          {/* Сортування */}
           <Select value={sortBy} onValueChange={setSortBy}>
             <SelectTrigger className="h-9 w-[130px] bg-card border-input rounded-xl text-xs font-bold">
               <SelectValue placeholder={t.sortByDate} />
@@ -62,7 +61,7 @@ const SubscriptionList = ({
             </SelectContent>
           </Select>
 
-          {/* Фільтр Категорій */}
+          {/* Категорії */}
           <Select value={filterCategory} onValueChange={setFilterCategory}>
             <SelectTrigger className="h-9 w-[140px] bg-card border-input rounded-xl text-xs font-bold">
               <SelectValue placeholder={t.allCats} />
@@ -79,16 +78,23 @@ const SubscriptionList = ({
         </div>
       </div>
 
+      {/* Список активних */}
       <div className="grid grid-cols-1 gap-3">
         <AnimatePresence mode="popLayout">
           {activeSubs.map(sub => (
-            <motion.div key={sub.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div 
+              key={sub.id} 
+              layout 
+              initial={{ opacity: 0, y: 10 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              exit={{ opacity: 0, scale: 0.95 }}
+            >
               <SubscriptionItem 
                 sub={sub} 
-                currency={viewCurrency} 
+                viewCurrency={viewCurrency} 
                 exchangeRate={exchangeRate} 
                 deleteSubscription={deleteSubscription} 
-                archiveSubscription={() => toggleArchive(sub.id)}
+                toggleArchive={toggleArchive} // ПЕРЕЙМЕНОВАНО З archiveSubscription
                 onEdit={onEdit}
                 t={t}
               />
@@ -97,41 +103,42 @@ const SubscriptionList = ({
         </AnimatePresence>
       </div>
 
+      {/* Блок архіву */}
       {archivedSubs.length > 0 && (
         <div className="mt-10 border-t border-border pt-6">
           <button 
             onClick={() => setShowArchive(!showArchive)} 
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-[10px] font-black uppercase tracking-widest transition-colors"
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-[10px] font-black uppercase tracking-widest transition-colors mb-4"
           >
             {showArchive ? <ChevronUp size={14}/> : <ChevronDown size={14}/>} 
             {t.archive} ({archivedSubs.length})
           </button>
           
-          {showArchive && (
-            <div className="grid grid-cols-1 gap-3 mt-4">
-              {archivedSubs.map(sub => (
-                <div key={sub.id} className="flex items-center gap-3">
-                  <div className="flex-1 opacity-50 grayscale-[0.5]">
+          <AnimatePresence>
+            {showArchive && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="grid grid-cols-1 gap-3">
+                  {archivedSubs.map(sub => (
                     <SubscriptionItem 
+                      key={sub.id}
                       sub={sub} 
-                      currency={viewCurrency} 
+                      viewCurrency={viewCurrency} 
                       exchangeRate={exchangeRate} 
                       deleteSubscription={deleteSubscription} 
-                      archiveSubscription={() => toggleArchive(sub.id)} 
+                      toggleArchive={toggleArchive} // ПЕРЕЙМЕНОВАНО З archiveSubscription
                       onEdit={onEdit}
                       t={t}
                     />
-                  </div>
-                  <button 
-                    onClick={() => toggleArchive(sub.id)} 
-                    className="h-10 w-10 flex items-center justify-center bg-card border border-border rounded-xl hover:text-blue-500 transition-all shrink-0 shadow-sm"
-                  >
-                    <ArchiveRestore size={18} />
-                  </button>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       )}
     </div>

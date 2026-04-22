@@ -1,68 +1,73 @@
 import React from 'react';
-import { Trash2, Archive, Clock, Edit2 } from 'lucide-react';
-import dayjs from 'dayjs';
-import { Card, CardContent } from "./ui/card";
+import { Pencil, Trash2, Archive, ArchiveRestore, Clock } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 
-const categoryTheme = {
-  Entertainment: { bg: "bg-blue-100 dark:bg-blue-900/30", text: "text-blue-700 dark:text-blue-400", border: "border-blue-200 dark:border-blue-800" },
-  Work: { bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-700 dark:text-purple-400", border: "border-purple-200 dark:border-purple-800" },
-  Education: { bg: "bg-emerald-100 dark:bg-emerald-900/30", text: "text-emerald-700 dark:text-emerald-400", border: "border-emerald-200 dark:border-emerald-800" },
-  Utilities: { bg: "bg-amber-100 dark:bg-amber-900/30", text: "text-amber-700 dark:text-amber-400", border: "border-amber-200 dark:border-amber-800" },
-  General: { bg: "bg-slate-100 dark:bg-slate-800/50", text: "text-slate-700 dark:text-slate-400", border: "border-slate-200 dark:border-slate-700" },
-};
+const SubscriptionItem = ({ sub, deleteSubscription, toggleArchive, onEdit, viewCurrency, exchangeRate, t }) => {
+  const displayPrice = sub.currency === 'UAH' && viewCurrency === 'USD' 
+    ? (sub.price / exchangeRate).toFixed(2) 
+    : sub.currency === 'USD' && viewCurrency === 'UAH'
+    ? (sub.price * exchangeRate).toFixed(2)
+    : sub.price.toFixed(2);
 
-const SubscriptionItem = ({ sub, currency, exchangeRate, deleteSubscription, archiveSubscription, onEdit, t }) => {
-  const daysLeft = dayjs(sub.nextBillingDate).diff(dayjs(), 'day');
-  const progress = Math.max(0, Math.min(100, ((30 - daysLeft) / 30) * 100));
-  const initials = sub.name.substring(0, 2).toUpperCase();
-  const theme = categoryTheme[sub.category] || categoryTheme.General;
+  const currencySymbol = viewCurrency === 'USD' ? '$' : '₴';
 
-  const displayPrice = () => {
-    const price = parseFloat(sub.price) || 0;
-    const rate = parseFloat(exchangeRate) || 43.6;
-    if (sub.currency === currency) return price.toFixed(2);
-    return (sub.currency === 'USD' ? price * rate : price / rate).toFixed(2);
+  // Кольори для категорій
+  const categoryStyles = {
+    Entertainment: "bg-blue-500/10 text-blue-600 border-blue-200",
+    Work: "bg-purple-500/10 text-purple-600 border-purple-200",
+    Education: "bg-emerald-500/10 text-emerald-600 border-emerald-200",
+    Utilities: "bg-amber-500/10 text-amber-600 border-amber-200",
+    General: "bg-slate-500/10 text-slate-600 border-slate-200"
   };
 
   return (
-    <Card className="bg-card border border-border overflow-hidden relative group transition-all hover:border-accent shadow-sm mb-1">
-      <div className="absolute bottom-0 left-0 h-1 bg-muted w-full">
-        <div className={`h-full transition-all duration-1000 ${daysLeft <= 3 ? 'bg-red-500' : 'bg-blue-600'}`} style={{ width: `${progress}%` }} />
-      </div>
-
-      <CardContent className="flex justify-between items-center p-4 pb-5 gap-3">
-        <div className="flex items-center gap-4 flex-1">
-          <div className={`size-11 flex items-center justify-center rounded-xl border shrink-0 font-bold text-xs tracking-wider shadow-sm ${theme.bg} ${theme.text} ${theme.border}`}>
-            {initials}
+    <div className={`group relative bg-card p-4 rounded-3xl border border-border shadow-sm transition-all hover:shadow-md ${sub.archived ? 'opacity-60' : ''}`}>
+      <div className="flex items-start justify-between gap-4">
+        
+        {/* Ліва частина: Іконка + Назва + Категорія */}
+        <div className="flex items-center gap-3 min-w-0">
+          <div className={`h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 font-bold text-lg ${categoryStyles[sub.category] || categoryStyles.General}`}>
+            {sub.name.substring(0, 2).toUpperCase()}
           </div>
-          <div>
-            <h3 className="font-bold leading-none mb-2 text-foreground">{sub.name}</h3>
-            <div className="flex items-center gap-2.5">
-              <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded border ${theme.bg} ${theme.text} ${theme.border}`}>
-                {t.categories[sub.category] || sub.category}
+          
+          <div className="min-w-0 flex flex-col">
+            <h4 className="font-black text-foreground truncate text-base leading-tight">
+              {sub.name}
+            </h4>
+            <div className="flex flex-wrap items-center gap-2 mt-1">
+              <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase border ${categoryStyles[sub.category] || categoryStyles.General}`}>
+                {t.categories[sub.category]}
               </span>
-              <span className={`text-[11px] font-medium flex items-center gap-1 ${daysLeft <= 3 ? 'text-red-500' : 'text-muted-foreground'}`}>
-                <Clock size={12}/> {daysLeft}{t.daysShort}
-              </span>
+              <div className="flex items-center gap-1 text-muted-foreground text-[10px] font-bold">
+                <Clock size={12} />
+                {t.daysShort || '29д.'}
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="flex gap-1 md:opacity-0 group-hover:opacity-100 transition-opacity">
-            <button onClick={() => onEdit(sub)} className="p-2 hover:bg-accent rounded-lg text-muted-foreground hover:text-blue-500 transition-colors"><Edit2 size={16}/></button>
-            <button onClick={() => archiveSubscription(sub.id)} className="p-2 hover:bg-accent rounded-lg text-muted-foreground hover:text-blue-500 transition-colors"><Archive size={16}/></button>
-            <button onClick={() => deleteSubscription(sub.id)} className="p-2 hover:bg-destructive/10 rounded-lg text-muted-foreground hover:text-destructive transition-colors"><Trash2 size={16}/></button>
-          </div>
-
-          <div className="text-right min-w-[80px]">
-            <span className="font-bold text-base text-foreground">
-              {currency === 'USD' ? '$' : '₴'}{displayPrice()}
-            </span>
-          </div>
+        {/* Права частина: Ціна */}
+        <div className="text-right shrink-0">
+          <span className="text-lg font-black text-foreground">
+            <span className="text-sm mr-0.5">{currencySymbol}</span>
+            {displayPrice}
+          </span>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Кнопки дій: тепер вони абсолютні або в окремому флекс-контейнері знизу для мобільних */}
+      <div className="flex items-center justify-end gap-1 mt-3 pt-3 border-t border-dashed border-border lg:mt-0 lg:pt-0 lg:border-0 lg:absolute lg:top-4 lg:right-4 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl hover:bg-blue-500/10 hover:text-blue-600" onClick={() => onEdit(sub)}>
+          <Pencil size={14} />
+        </Button>
+        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl hover:bg-purple-500/10 hover:text-purple-600" onClick={() => toggleArchive(sub.id)}>
+          {sub.archived ? <ArchiveRestore size={14} /> : <Archive size={14} />}
+        </Button>
+        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl hover:bg-red-500/10 hover:text-red-600" onClick={() => deleteSubscription(sub.id)}>
+          <Trash2 size={14} />
+        </Button>
+      </div>
+    </div>
   );
 };
 

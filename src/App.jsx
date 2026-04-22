@@ -6,7 +6,6 @@ import './index.css';
 import useDarkMode from './hooks/useDarkMode';
 import { Button } from "@/components/ui/button";
 
-
 import logo from './assets/Logo_Blue_120-120.png';
 
 const translations = {
@@ -164,7 +163,8 @@ const App = () => {
   const { monthly, yearly, daily, suggestion } = calculateCosts();
 
   return (
-    <div className="h-screen w-full bg-background text-foreground p-4 md:p-6 lg:p-8 transition-colors flex flex-col overflow-hidden">
+    // Змінено h-screen на min-h-screen та прибрано overflow-hidden для мобільних
+    <div className="min-h-screen w-full bg-background text-foreground p-4 md:p-6 lg:p-8 transition-colors flex flex-col">
       <style>{`
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
@@ -172,26 +172,27 @@ const App = () => {
         .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; }
       `}</style>
 
-      <div className="max-w-[1800px] mx-auto w-full flex-1 flex flex-col min-h-0">
-        <header className="mb-8 flex justify-between items-center shrink-0">
-          <div className="flex items-center gap-3">
-            {/* Контейнер для логотипу */}
+      <div className="max-w-[1800px] mx-auto w-full flex-1 flex flex-col">
+        {/* Адаптивний хедер: на мобільних стає в колонку */}
+        <header className="mb-8 flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
             <img 
               src={logo} 
               alt="Logo" 
               className="h-10 w-10 md:h-12 md:w-12 object-contain rounded-lg"
             />
             <div>
-              <h1 className="text-2xl font-black tracking-tight leading-none">{t.title}</h1>
-              <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold mt-1">{t.subtitle}</p>
+              <h1 className="text-xl md:text-2xl font-black tracking-tight leading-none">{t.title}</h1>
+              <p className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-widest font-bold mt-1">{t.subtitle}</p>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => setLanguage(l => l === 'UA' ? 'EN' : 'UA')} className="font-bold border-border bg-card">
+          
+          <div className="flex gap-2 w-full sm:w-auto justify-center">
+            <Button variant="outline" size="sm" onClick={() => setLanguage(l => l === 'UA' ? 'EN' : 'UA')} className="flex-1 sm:flex-none font-bold border-border bg-card">
               {language}
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setViewCurrency(v => v === 'USD' ? 'UAH' : 'USD')} className="font-bold border-border bg-card">
-              {viewCurrency === 'USD' ? '$ USD' : '₴ UAH'}
+            <Button variant="outline" size="sm" onClick={() => setViewCurrency(v => v === 'USD' ? 'UAH' : 'USD')} className="flex-1 sm:flex-none font-bold border-border bg-card">
+              {viewCurrency === 'USD' ? '$' : '₴'}
             </Button>
             <Button variant="outline" size="sm" onClick={() => setDarkMode(!darkMode)} className="border-border bg-card">
               {darkMode ? '☀️' : '🌙'}
@@ -199,8 +200,9 @@ const App = () => {
           </div>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 flex-1 min-h-0">
-          <div className="lg:col-span-8 flex flex-col min-h-0">
+        {/* Контентна сітка: на мобільних один під одним */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 flex-1">
+          <div className="lg:col-span-8 flex flex-col">
             <Dashboard 
               monthly={monthly} yearly={yearly} daily={daily}
               suggestion={suggestion} subscriptions={subscriptions.filter(s => !s.archived)} 
@@ -219,8 +221,9 @@ const App = () => {
             />
           </div>
 
-          <div className="lg:col-span-4 flex flex-col min-h-0">
-            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
+          <div className="lg:col-span-4 flex flex-col mt-4 lg:mt-0">
+            {/* Додано обмеження висоти для списку тільки на десктопі */}
+            <div className="lg:flex-1 lg:overflow-y-auto lg:custom-scrollbar lg:pr-2">
               <SubscriptionList
                 subscriptions={subscriptions} viewCurrency={viewCurrency}
                 exchangeRate={EXCHANGE_RATE} 

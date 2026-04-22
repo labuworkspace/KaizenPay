@@ -22,7 +22,7 @@ const translations = {
     yearlyForecast: "Річний прогноз",
     dailyAverage: "В середньому за день",
     hint: "Порада",
-    total: "Всього",
+    total: "всього",
     namePlaceholder: "Назва",
     pricePlaceholder: "Ціна",
     categoryLabel: "Категорія",
@@ -56,7 +56,7 @@ const translations = {
     yearlyForecast: "Yearly Forecast",
     dailyAverage: "Daily Average",
     hint: "Finance Hint",
-    total: "Total",
+    total: "total",
     namePlaceholder: "Name",
     pricePlaceholder: "Price",
     categoryLabel: "Category",
@@ -163,46 +163,30 @@ const App = () => {
   const { monthly, yearly, daily, suggestion } = calculateCosts();
 
   return (
-    // Змінено h-screen на min-h-screen та прибрано overflow-hidden для мобільних
-    <div className="min-h-screen w-full bg-background text-foreground p-4 md:p-6 lg:p-8 transition-colors flex flex-col">
-      <style>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; }
-      `}</style>
-
-      <div className="max-w-[1800px] mx-auto w-full flex-1 flex flex-col">
-        {/* Адаптивний хедер: на мобільних стає в колонку */}
-        <header className="mb-8 flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0">
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-background text-foreground p-4 md:p-6 transition-colors flex flex-col">
+      <div className="w-full h-full flex flex-col min-h-0">
+        
+        {/* Header */}
+        <header className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0">
           <div className="flex items-center gap-3 w-full sm:w-auto">
-            <img 
-              src={logo} 
-              alt="Logo" 
-              className="h-10 w-10 md:h-12 md:w-12 object-contain rounded-lg"
-            />
+            <img src={logo} alt="Logo" className="h-10 w-10 md:h-12 md:w-12 object-contain" />
             <div>
               <h1 className="text-xl md:text-2xl font-black tracking-tight leading-none">{t.title}</h1>
               <p className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-widest font-bold mt-1">{t.subtitle}</p>
             </div>
           </div>
-          
           <div className="flex gap-2 w-full sm:w-auto justify-center">
-            <Button variant="outline" size="sm" onClick={() => setLanguage(l => l === 'UA' ? 'EN' : 'UA')} className="flex-1 sm:flex-none font-bold border-border bg-card">
-              {language}
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => setViewCurrency(v => v === 'USD' ? 'UAH' : 'USD')} className="flex-1 sm:flex-none font-bold border-border bg-card">
-              {viewCurrency === 'USD' ? '$' : '₴'}
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => setDarkMode(!darkMode)} className="border-border bg-card">
-              {darkMode ? '☀️' : '🌙'}
-            </Button>
+            <Button variant="outline" size="sm" onClick={() => setLanguage(l => l === 'UA' ? 'EN' : 'UA')} className="flex-1 sm:flex-none font-bold border-border bg-card">{language}</Button>
+            <Button variant="outline" size="sm" onClick={() => setViewCurrency(v => v === 'USD' ? 'UAH' : 'USD')} className="flex-1 sm:flex-none font-bold border-border bg-card">{viewCurrency === 'USD' ? '$ USD' : '₴ UAH'}</Button>
+            <Button variant="outline" size="sm" onClick={() => setDarkMode(!darkMode)} className="border-border bg-card">{darkMode ? '☀️' : '🌙'}</Button>
           </div>
         </header>
 
-        {/* Контентна сітка: на мобільних один під одним */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 flex-1">
-          <div className="lg:col-span-8 flex flex-col">
+        {/* Main Content Area */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 min-h-0">
+          
+          {/* Dashboard Column */}
+          <div className="lg:col-span-8 xl:col-span-9 flex flex-col min-h-0 lg:overflow-y-auto custom-scrollbar pr-0 lg:pr-4">
             <Dashboard 
               monthly={monthly} yearly={yearly} daily={daily}
               suggestion={suggestion} subscriptions={subscriptions.filter(s => !s.archived)} 
@@ -221,9 +205,9 @@ const App = () => {
             />
           </div>
 
-          <div className="lg:col-span-4 flex flex-col mt-4 lg:mt-0">
-            {/* Додано обмеження висоти для списку тільки на десктопі */}
-            <div className="lg:flex-1 lg:overflow-y-auto lg:custom-scrollbar lg:pr-2">
+          {/* List Column */}
+          <div className="lg:col-span-4 xl:col-span-3 flex flex-col min-h-0">
+            <div className="flex-1 lg:overflow-y-auto custom-scrollbar pr-0 lg:pr-2">
               <SubscriptionList
                 subscriptions={subscriptions} viewCurrency={viewCurrency}
                 exchangeRate={EXCHANGE_RATE} 
@@ -241,6 +225,7 @@ const App = () => {
               />
             </div>
           </div>
+
         </div>
       </div>
     </div>

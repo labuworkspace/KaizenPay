@@ -133,6 +133,17 @@ const App = () => {
     setNewPrice('');
   };
 
+  // Важливо: Функція для архівації
+  const toggleArchive = (id) => {
+    setSubscriptions(prev => prev.map(s => 
+      s.id === id ? { ...s, archived: !s.archived } : s
+    ));
+  };
+
+  const deleteSubscription = (id) => {
+    setSubscriptions(prev => prev.filter(s => s.id !== id));
+  };
+
   const calculateCosts = () => {
     const activeSubs = subscriptions.filter(s => !s.archived);
     const totalInUSD = activeSubs.reduce((acc, sub) => {
@@ -209,10 +220,11 @@ const App = () => {
           <div className="lg:col-span-4 xl:col-span-3 flex flex-col min-h-0">
             <div className="flex-1 lg:overflow-y-auto custom-scrollbar pr-0 lg:pr-2">
               <SubscriptionList
-                subscriptions={subscriptions} viewCurrency={viewCurrency}
+                subscriptions={subscriptions} 
+                viewCurrency={viewCurrency}
                 exchangeRate={EXCHANGE_RATE} 
-                deleteSubscription={(id) => setSubscriptions(subscriptions.filter(s => s.id !== id))}
-                toggleArchive={(id) => setSubscriptions(subscriptions.map(s => s.id === id ? { ...s, archived: !s.archived } : s))}
+                deleteSubscription={deleteSubscription}
+                toggleArchive={toggleArchive} // ПЕРЕДАЄМО ФУНКЦІЮ СЮДИ
                 onEdit={(sub) => {
                   setEditingId(sub.id);
                   setNewName(sub.name);

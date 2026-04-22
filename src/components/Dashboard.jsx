@@ -6,24 +6,20 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const Dashboard = ({ 
-  monthly, 
-  yearly, 
-  daily, 
-  suggestion, 
-  subscriptions, 
-  darkMode, 
-  difference, 
-  currency, 
-  exchangeRate, 
-  t, 
-  formComponent 
+  monthly, yearly, daily, 
+  suggestion, subscriptions, 
+  darkMode, difference, 
+  currency, exchangeRate, 
+  t, formComponent 
 }) => {
   const currencySymbol = currency === 'USD' ? '$' : '₴';
+  const categoryColors = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#64748b'];
+  const categoryKeys = ['Entertainment', 'Work', 'Education', 'Utilities', 'General'];
 
   const chartData = {
-    labels: Object.values(t.categories),
+    labels: categoryKeys.map(key => t.categories[key]),
     datasets: [{
-      data: ['Entertainment', 'Work', 'Education', 'Utilities', 'General'].map(cat => 
+      data: categoryKeys.map(cat => 
         subscriptions
           .filter(s => s.category === cat)
           .reduce((acc, s) => {
@@ -31,31 +27,24 @@ const Dashboard = ({
             return acc + priceInUSD;
           }, 0)
       ),
-      backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#64748b'],
+      backgroundColor: categoryColors,
       borderWidth: 0,
-      hoverOffset: 20
+      hoverOffset: 15
     }]
   };
 
   const options = {
-    cutout: '75%',
+    cutout: '82%',
     plugins: {
-      legend: { 
-        display: true, 
-        position: 'bottom',
-        labels: {
-          color: darkMode ? '#94a3b8' : '#64748b',
-          usePointStyle: true,
-          pointStyle: 'circle',
-          padding: 15,
-          font: { size: 11, weight: '600' }
-        }
-      },
+      legend: { display: false },
       tooltip: {
         backgroundColor: darkMode ? '#1e293b' : '#ffffff',
         titleColor: darkMode ? '#ffffff' : '#1e293b',
         bodyColor: darkMode ? '#94a3b8' : '#64748b',
-        padding: 10,
+        borderColor: darkMode ? '#334155' : '#e2e8f0',
+        borderWidth: 1,
+        padding: 12,
+        cornerRadius: 12,
       }
     },
     maintainAspectRatio: false,
@@ -63,8 +52,8 @@ const Dashboard = ({
   };
 
   return (
-    <div className="flex flex-col gap-6 h-full min-h-0">
-      {/* Картки статистики (фіксована висота) */}
+    <div className="flex flex-col gap-6 h-full">
+      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 shrink-0">
         <div className="bg-card p-5 rounded-3xl border border-border shadow-sm">
           <div className="flex justify-between items-start mb-2">
@@ -90,38 +79,41 @@ const Dashboard = ({
         </div>
 
         <div className="bg-blue-600/5 border border-blue-600/10 p-5 rounded-3xl flex flex-col justify-center relative overflow-hidden">
-          <div className="absolute -right-4 -top-4 text-blue-500/5 rotate-12">
-            <Lightbulb size={70} />
-          </div>
-          <div className="flex items-center gap-2 mb-1.5 relative z-10">
-            <span className="text-[9px] font-black uppercase text-blue-500 tracking-widest">{t.hint}</span>
-          </div>
-          <p className="text-[11px] font-bold text-blue-700 dark:text-blue-400 leading-tight relative z-10">
-            {suggestion}
-          </p>
+          <div className="absolute -right-4 -top-4 text-blue-500/5 rotate-12"><Lightbulb size={70} /></div>
+          <span className="text-[9px] font-black uppercase text-blue-500 tracking-widest relative z-10">{t.hint}</span>
+          <p className="text-[11px] font-bold text-blue-700 dark:text-blue-400 leading-tight relative z-10">{suggestion}</p>
         </div>
       </div>
 
-      {/* Нижня секція (Гнучка по висоті) */}
-      <div className="grid grid-cols-1 xl:grid-cols-10 gap-6 flex-1 min-h-0">
-        {/* Графік */}
-        <div className="xl:col-span-6 bg-card p-6 rounded-[2rem] border border-border flex flex-col items-center relative shadow-sm min-h-0">
+      {/* Main Section: Chart & Form */}
+      <div className="grid grid-cols-1 xl:grid-cols-10 gap-6 flex-1 min-h-0 pb-2">
+        {/* Chart Card */}
+        <div className="xl:col-span-6 bg-card p-6 rounded-[2rem] border border-border flex flex-col items-center justify-between relative shadow-sm min-h-0">
           <div className="w-full flex justify-between items-center mb-4 shrink-0">
             <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t.distributionTitle}</h3>
             <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
           </div>
           
-          <div className="relative w-full flex-1 min-h-0">
+          <div className="relative w-full flex-1 min-h-[300px] max-h-[450px] xl:max-h-[500px] mx-auto">
             <Doughnut data={chartData} options={options} />
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none" style={{ transform: 'translateY(-15%)' }}>
-              <span className="text-[9px] uppercase text-muted-foreground font-black tracking-widest mb-1">{t.total}</span>
-              <span className="text-3xl font-black text-foreground">{currencySymbol}{monthly}</span>
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span className="text-[9px] md:text-[11px] uppercase text-muted-foreground font-black tracking-[0.2em] mb-1">{t.total}</span>
+              <span className="text-4xl md:text-6xl font-black text-foreground leading-none">{currencySymbol}{monthly}</span>
             </div>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-8 shrink-0">
+            {categoryKeys.map((key, index) => (
+              <div key={key} className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: categoryColors[index] }} />
+                <span className="text-[11px] font-black text-muted-foreground uppercase tracking-tight">{t.categories[key]}</span>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Форма (вона не повинна мати скрол, просто стоїть поруч) */}
-        <div className="xl:col-span-4 bg-card p-6 rounded-[2rem] border border-border shadow-sm flex flex-col shrink-0 lg:shrink">
+        {/* Form Card */}
+        <div className="xl:col-span-4 bg-card p-8 rounded-[2rem] border border-border shadow-sm flex flex-col justify-center h-full">
           {formComponent}
         </div>
       </div>

@@ -19,11 +19,18 @@ const SubscriptionItem = ({ sub, deleteSubscription, toggleArchive, onEdit, view
     General: "bg-slate-500/10 text-slate-600 border-slate-200"
   };
 
+  // Функція-обробник, щоб уникнути спливання подій
+  const handleArchive = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleArchive(sub.id);
+  };
+
   return (
     <div className={`group bg-card p-4 rounded-3xl border border-border shadow-sm transition-all hover:shadow-md ${sub.archived ? 'opacity-60 bg-muted/30' : ''}`}>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         
-        {/* Контейнер інформації */}
+        {/* Інформація про підписку */}
         <div className="flex items-center gap-3 min-w-0">
           <div className={`h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 font-bold text-lg ${categoryStyles[sub.category] || categoryStyles.General}`}>
             {sub.name.substring(0, 2).toUpperCase()}
@@ -45,18 +52,34 @@ const SubscriptionItem = ({ sub, deleteSubscription, toggleArchive, onEdit, view
           </div>
         </div>
 
-        {/* Права частина: Ціна та Кнопки */}
+        {/* Права частина: Кнопки та Ціна */}
         <div className="flex items-center justify-between sm:justify-end gap-4 border-t border-dashed border-border pt-3 sm:pt-0 sm:border-0">
           
-          {/* Кнопки дій - тепер вони не absolute, а частина флекс-потоку */}
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl hover:bg-blue-500/10 hover:text-blue-600" onClick={() => onEdit(sub)}>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-8 w-8 rounded-xl hover:bg-blue-500/10 hover:text-blue-600" 
+              onClick={() => onEdit(sub)}
+            >
               <Pencil size={14} />
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl hover:bg-purple-500/10 hover:text-purple-600" onClick={() => toggleArchive(sub.id)}>
+            
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-8 w-8 rounded-xl hover:bg-purple-500/10 hover:text-purple-600 relative z-10" 
+              onClick={handleArchive} // Використовуємо новий обробник
+            >
               {sub.archived ? <ArchiveRestore size={14} /> : <Archive size={14} />}
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl hover:bg-red-500/10 hover:text-red-600" onClick={() => deleteSubscription(sub.id)}>
+
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-8 w-8 rounded-xl hover:bg-red-500/10 hover:text-red-600" 
+              onClick={() => deleteSubscription(sub.id)}
+            >
               <Trash2 size={14} />
             </Button>
           </div>

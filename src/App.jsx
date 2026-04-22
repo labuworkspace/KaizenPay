@@ -180,7 +180,7 @@ const App = () => {
         {/* Header */}
         <header className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0">
           <div className="flex items-center gap-3 w-full sm:w-auto">
-            <img src={logo} alt="Logo" className="h-10 w-10 md:h-12 md:w-12 object-contain" />
+            <img src={logo} alt="Logo" className="h-10 w-10 md:h-12 md:w-12 object-contain rounded-xl overflow-hidden shadow-sm" />
             <div>
               <h1 className="text-xl md:text-2xl font-black tracking-tight leading-none">{t.title}</h1>
               <p className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-widest font-bold mt-1">{t.subtitle}</p>
